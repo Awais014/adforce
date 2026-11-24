@@ -16,6 +16,17 @@ saver.setup(); store.setup()
 agent = build_agent(saver, store)
 
 app = FastAPI()
+rom pathlib import Path
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+
+WEB_DIR = Path(__file__).resolve().parent.parent / "web"
+
+@app.get("/")
+def home():
+    return FileResponse(WEB_DIR / "index.html")
+
+app.mount("/web", StaticFiles(directory=WEB_DIR), name="web")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 class Chat(BaseModel):
