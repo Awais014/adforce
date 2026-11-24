@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AdForge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef1f5;--surface:#fff;--ink:#0f172a;--mute:#64748b;--line:#dbe1ea;--accent:#0e7c66;--accent-ink:#fff;--win:#f5b301;--soft:#e4f3ef;--warn:#b45309}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1218;--surface:#161d27;--ink:#e8edf4;--mute:#8b98ab;--line:#263141;--accent:#2fb59a;--accent-ink:#06201a;--soft:#12302a;--warn:#f0a85a}}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Public Sans",system-ui,sans-serif;display:flex;flex-direction:column}
+h1,h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;margin:0;letter-spacing:-.01em}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+header{display:flex;align-items:center;gap:16px;padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--line)}
+.logo{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:22px}
+.logo i{font-style:normal;color:var(--accent)}
+nav{margin-left:auto;display:flex;gap:4px;background:var(--bg);padding:3px;border-radius:10px}
+nav button{border:0;background:none;color:var(--mute);padding:6px 14px;border-radius:8px;font-weight:500}
+nav button[aria-pressed=true]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px #0002}
+main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(320px,420px) 1fr;gap:16px;padding:16px 20px}
+section{min-height:0;display:flex;flex-direction:column}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;min-height:0;flex:1}
+.panel-h{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line)}
+.panel-h button{border:1px solid var(--line);background:none;color:var(--mute);padding:4px 10px;border-radius:8px;font-size:13px}
+#log{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:88%;padding:9px 13px;border-radius:14px;white-space:pre-wrap;word-wrap:break-word}
+.bot{background:var(--bg);border-bottom-left-radius:4px;align-self:flex-start}
+.me{background:var(--accent);color:var(--accent-ink);border-bottom-right-radius:4px;align-self:flex-end}
+.tools{align-self:flex-start;display:flex;gap:6px;flex-wrap:wrap;margin-top:-4px}
+.tools span{font-size:12px;color:var(--accent);background:var(--soft);padding:2px 8px;border-radius:999px}
+.typing{color:var(--mute);font-style:italic}
+.chips{display:flex;gap:6px;flex-wrap:wrap;padding:0 16px 10px}
+.chips button{border:1px solid var(--line);background:none;color:var(--ink);padding:5px 11px;border-radius:999px;font-size:13px}
+.chips button:hover{border-color:var(--accent)}
+form.send{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--line)}
+form.send input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+.btn{background:var(--accent);color:var(--accent-ink);border:0;padding:9px 16px;border-radius:10px;font-weight:600}
+.btn:disabled{opacity:.5;cursor:default}
+#camps{overflow:auto;padding:16px;display:flex;flex-direction:column;gap:20px;flex:1}
+.empty{margin:auto;text-align:center;color:var(--mute);max-width:300px}
+.camp-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.pill{font-size:12px;padding:2px 9px;border-radius:999px;background:var(--bg);color:var(--mute);border:1px solid var(--line)}
+.pill.published{background:var(--soft);color:var(--accent);border-color:transparent}
+.pill.pending_publish{color:var(--warn)}
+.camp-h .acts{margin-left:auto;display:flex;gap:6px}
+.acts button{border:1px solid var(--line);background:none;color:var(--ink);padding:4px 10px;border-radius:8px;font-size:13px}
+.acts .go{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.variants{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.ad{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--bg);display:flex;flex-direction:column}
+.ad.win{border-color:var(--win);box-shadow:0 0 0 2px var(--win) inset}
+.ad-top{display:flex;justify-content:space-between;padding:8px 12px;font-size:12px;color:var(--mute)}
+.ad-top b{color:var(--ink)}
+.ad-body{padding:4px 12px 12px;flex:1}
+.ad-body h3{font-size:17px;line-height:1.25;margin-bottom:6px}
+.ad-body p{margin:0 0 10px;color:var(--mute);font-size:14px}
+.cta{display:inline-block;background:var(--ink);color:var(--surface);padding:5px 12px;border-radius:7px;font-size:13px;font-weight:600}
+.ad-foot{padding:8px 12px;border-top:1px solid var(--line);font-size:12px;color:var(--mute)}
+.bar{height:5px;background:var(--line);border-radius:3px;margin-top:5px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+.crown{color:var(--warn);font-weight:600}
+#admin{display:none;overflow:auto;gap:16px;flex-direction:column;grid-column:1/-1}
+.login{display:flex;gap:8px;max-width:420px}
+.login input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.stat b{font-family:"Bricolage Grotesque",sans-serif;font-size:26px;display:block}
+.stat span{color:var(--mute);font-size:13px}
+.tbl{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:9px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mute);font-weight:500}
+tr:last-child td{border-bottom:0}
+body.admin main{display:block;overflow:auto}
+body.admin #chat,body.admin #work{display:none}
+body.admin #admin{display:flex}
+.seg{display:none}
+@media(max-width:820px){
+ main{grid-template-columns:1fr;padding:10px}
+ .seg{display:flex;gap:4px;margin:0 0 10px}
+ .seg button{flex:1;padding:8px;border:1px solid var(--line);background:var(--surface);color:var(--mute);border-radius:10px}
+ .seg button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+ body.v-chat #work{display:none}body.v-work #chat{display:none}
+ body.admin .seg{display:none}
+ header{padding:10px 12px}
+}
+@media(prefers-reduced-motion:no-preference){.msg{animation:in .18s ease-out}@keyframes in{from{opacity:0;transform:translateY(4px)}}}
+</style>
+</head>
+<body class="v-chat">
+<header>
+ <div class="logo">Ad<i>Forge</i></div>
+ <nav aria-label="Views">
+  <button id="nav-app" aria-pressed="true" onclick="setView('app')">Workspace</button>
+  <button id="nav-admin" aria-pressed="false" onclick="setView('admin')">Admin</button>
+ </nav>
+</header>
+<main>
+ <div class="seg" id="seg">
+  <button id="s-chat" aria-pressed="true" onclick="setPane('chat')">Chat</button>
+  <button id="s-work" aria-pressed="false" onclick="setPane('work')">Campaigns</button>
+ </div>
+ <section id="chat">
+  <div class="panel">
+   <div class="panel-h"><h2>Your ad agency</h2><button onclick="newChat()">New chat</button></div>
+   <div id="log" role="log" aria-live="polite"></div>
+   <div class="chips" id="chips"></div>
+   <form class="send" onsubmit="return onSend(event)">
+    <input id="m" placeholder="Describe your product and audience…" autocomplete="off" aria-label="Message">
+    <button class="btn" id="sendbtn">Send</button>
+   </form>
+  </div>
+ </section>
+ <section id="work">
+  <div class="panel">
+   <div class="panel-h"><h2>Campaigns</h2><button onclick="loadCamps()">Refresh</button></div>
+   <div id="camps"></div>
+  </div>
+ </section>
+ <section id="admin">
+  <h2>Admin dashboard</h2>
+  <form class="login" onsubmit="return onAdmin(event)">
+   <input id="k" type="password" placeholder="Admin key" aria-label="Admin key">
+   <button class="btn">Load data</button>
+  </form>
+  <div id="adout"></div>
+ </section>
+</main>
+<script>
+// Set this to your deployed API URL before deploying to Vercel.
+const API = "http://localhost:8000";
+
+const $ = id => document.getElementById(id);
+const uuid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : "u" + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+const uid = localStorage.getItem("adforge_uid") || (localStorage.setItem("adforge_uid", uuid()), localStorage.getItem("adforge_uid"));
+let tid = uuid(), busy = false;
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = s => esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+
+const CHIPS = ["Write 3 Instagram ads for my handmade candles", "Which variant won?", "My brand tone is playful and my audience is students"];
+function chips(){ $("chips").innerHTML = CHIPS.map(c => `<button type="button">${esc(c)}</button>`).join(""); [...$("chips").children].forEach((b,i) => b.onclick = () => { $("m").value = CHIPS[i]; $("m").focus(); }); }
+
+function setView(v){ document.body.classList.toggle("admin", v === "admin"); $("nav-app").setAttribute("aria-pressed", v === "app"); $("nav-admin").setAttribute("aria-pressed", v === "admin"); }
+function setPane(p){ document.body.classList.remove("v-chat","v-work"); document.body.classList.add("v-" + p); $("s-chat").setAttribute("aria-pressed", p === "chat"); $("s-work").setAttribute("aria-pressed", p === "work"); }
+
+function add(text, cls){ const d = document.createElement("div"); d.className = "msg " + cls; d.innerHTML = fmt(text); $("log").appendChild(d); $("log").scrollTop = 1e9; return d; }
+function addTools(calls){ if(!calls || !calls.length) return; const d = document.createElement("div"); d.className = "tools"; d.innerHTML = calls.map(c => `<span>${esc(c.name)}</span>`).join(""); $("log").appendChild(d); }
+function newChat(){ tid = uuid(); $("log").innerHTML = ""; add("New chat started. Tell me what you want to advertise: product, audience and platform.", "bot"); }
+
+async function send(text){
+  if (busy || !text.trim()) return; busy = true; $("sendbtn").disabled = true;
+  add(text, "me"); const t = add("Working on it…", "bot typing");
+  try {
+    const r = await fetch(API + "/chat", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({user_id: uid, thread_id: tid, message: text})});
+    const d = await r.json(); t.remove(); add(d.reply, "bot"); addTools(d.tool_calls);
+    if (d.tool_calls && d.tool_calls.length) loadCamps();
+  } catch(e){ t.remove(); add("Can’t reach the server. Check that the API is running and the API address at the top of this page is correct.", "bot"); }
+  busy = false; $("sendbtn").disabled = false; $("m").focus();
+}
+function onSend(e){ e.preventDefault(); const v = $("m").value; $("m").value = ""; send(v); return false; }
+
+function ctr(v){ return v.impressions ? (100 * v.clicks / v.impressions) : 0; }
+async function loadCamps(){
+  try {
+    const cs = await (await fetch(API + "/campaigns/" + uid)).json();
+    if (!cs.length){ $("camps").innerHTML = `<div class="empty"><h3>No campaigns yet</h3><p>Ask the agent for ad variants in the chat. Each campaign shows up here as a set of ad previews.</p></div>`; return; }
+    $("camps").innerHTML = cs.map(c => {
+      const ok = c.variants.filter(v => v.impressions >= 100), best = ok.length ? ok.reduce((a,b) => ctr(b) > ctr(a) ? b : a) : null;
+      const max = Math.max(1, ...c.variants.map(ctr));
+      const act = c.status === "pending_publish" ? `<button class="go" onclick="send('Yes, publish campaign ${c.id}')">Confirm publish</button>` : c.status === "draft" ? `<button onclick="send('Publish campaign ${c.id}')">Publish</button>` : "";
+      return `<div><div class="camp-h"><h3>#${c.id} ${esc(c.name)}</h3><span class="pill">${esc(c.platform)}</span><span class="pill ${esc(c.status)}">${esc(c.status.replace("_"," "))}</span>
+       <div class="acts"><button onclick="fill('Results for campaign ${c.id}: ')">Log results</button>${act}</div></div>
+       <div class="variants">${c.variants.map(v => `<div class="ad ${best && best.label === v.label ? "win" : ""}">
+        <div class="ad-top"><b>Variant ${esc(v.label)}</b>${best && best.label === v.label ? '<span class="crown">Winner</span>' : "<span>Sponsored</span>"}</div>
+        <div class="ad-body"><h3>${esc(v.headline)}</h3><p>${esc(v.body)}</p><span class="cta">${esc(v.cta)}</span></div>
+        <div class="ad-foot">${v.impressions ? `${ctr(v).toFixed(1)}% CTR, ${v.clicks} clicks of ${v.impressions}` : "No results yet"}<div class="bar"><i style="width:${(100*ctr(v)/max).toFixed(0)}%"></i></div></div></div>`).join("")}</div></div>`;
+    }).join("");
+  } catch(e){ $("camps").innerHTML = `<div class="empty"><p>Can’t load campaigns. Check the API address.</p></div>`; }
+}
+function fill(t){ $("m").value = t; setPane("chat"); $("m").focus(); }
+
+async function onAdmin(e){
+  e.preventDefault(); const out = $("adout");
+  try {
+    const r = await fetch(API + "/admin/overview", {headers:{"X-Admin-Key": $("k").value}});
+    if (!r.ok){ out.innerHTML = `<p>Wrong admin key.</p>`; return false; }
+    const d = await r.json(), s = d.stats;
+    out.innerHTML = `<div class="stats">
+      <div class="stat"><b>${s.users}</b><span>Users</span></div><div class="stat"><b>${s.turns}</b><span>Chat turns</span></div>
+      <div class="stat"><b>${s.tin}</b><span>Input tokens</span></div><div class="stat"><b>${s.tout}</b><span>Output tokens</span></div></div>
+      <h3 style="margin:16px 0 8px">All campaigns</h3><div class="tbl"><table><tr><th>ID</th><th>User</th><th>Name</th><th>Platform</th><th>Status</th><th>Variants</th><th>Clicks</th></tr>
+      ${d.campaigns.map(c => `<tr><td>${c.id}</td><td>${esc(c.user_id.slice(0,8))}</td><td>${esc(c.name)}</td><td>${esc(c.platform)}</td><td>${esc(c.status)}</td><td>${c.variants}</td><td>${c.clicks}</td></tr>`).join("") || `<tr><td colspan="7">No campaigns yet.</td></tr>`}</table></div>
+      <h3 style="margin:16px 0 8px">Recent chats</h3><div class="tbl"><table><tr><th>User</th><th>Message</th><th>Reply</th></tr>
+      ${d.recent.map(r => `<tr><td>${esc(r.user_id.slice(0,8))}</td><td>${esc(r.user_msg)}</td><td>${esc((r.reply||"").slice(0,140))}</td></tr>`).join("") || `<tr><td colspan="3">No chats yet.</td></tr>`}</table></div>`;
+  } catch(err){ out.innerHTML = `<p>Can’t reach the server.</p>`; }
+  return false;
+}
+
+chips(); newChat(); loadCamps();
+</script>
+</body>
+</html>
