@@ -1,7 +1,10 @@
 """Graded API: POST /chat and GET /health. Both open, no login."""
 import os
+from pathlib import Path
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from langchain.messages import AIMessage, HumanMessage, ToolMessage
 from langgraph.checkpoint.postgres import PostgresSaver
 from langgraph.store.postgres import PostgresStore
@@ -16,18 +19,14 @@ saver.setup(); store.setup()
 agent = build_agent(saver, store)
 
 app = FastAPI()
-rom pathlib import Path
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
+# Also serve the website from the API (handy for a single-URL demo).
 WEB_DIR = Path(__file__).resolve().parent.parent / "web"
 
-@app.get("/")
+@app.get("/", include_in_schema=False)
 def home():
-    return FileResponse(WEB_DIR / "index.html")
-
-app.mount("/web", StaticFiles(directory=WEB_DIR), name="web")
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+    return FileResponse(WEB_DIR / "index.html") if (WEB_DIR / "index.html").exists() else "AdForge API is running."
 
 class Chat(BaseModel):
     user_id: str

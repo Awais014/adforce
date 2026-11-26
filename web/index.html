@@ -130,8 +130,9 @@ body.admin #admin{display:flex}
  </section>
 </main>
 <script>
-// Set this to your deployed API URL before deploying to Vercel.
-const API = "http://localhost:8000";
+// Local page server (port 5500) talks to the local API. On Vercel, replace "" with your deployed API URL.
+// When this page is served by the API itself, "" (same origin) is correct.
+const API = location.port === "5500" ? "http://localhost:8000" : "";
 
 const $ = id => document.getElementById(id);
 const uuid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : "u" + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
@@ -175,7 +176,7 @@ async function loadCamps(){
        <div class="acts"><button onclick="fill('Results for campaign ${c.id}: ')">Log results</button>${act}</div></div>
        <div class="variants">${c.variants.map(v => `<div class="ad ${best && best.label === v.label ? "win" : ""}">
         <div class="ad-top"><b>Variant ${esc(v.label)}</b>${best && best.label === v.label ? '<span class="crown">Winner</span>' : "<span>Sponsored</span>"}</div>
-        <div class="ad-body"><h3>${esc(v.headline)}</h3><p>${esc(v.body)}</p><span class="cta">${esc(v.cta)}</span></div>
+        <div class="ad-body"><h3>${esc(v.headline || "(no headline saved)")}</h3><p>${esc(v.body)}</p>${v.cta ? `<span class="cta">${esc(v.cta)}</span>` : ""}</div>
         <div class="ad-foot">${v.impressions ? `${ctr(v).toFixed(1)}% CTR, ${v.clicks} clicks of ${v.impressions}` : "No results yet"}<div class="bar"><i style="width:${(100*ctr(v)/max).toFixed(0)}%"></i></div></div></div>`).join("")}</div></div>`;
     }).join("");
   } catch(e){ $("camps").innerHTML = `<div class="empty"><p>Can’t load campaigns. Check the API address.</p></div>`; }

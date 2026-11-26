@@ -1,6 +1,7 @@
 """Every tool reads the user from runtime.context, never from a model argument (user isolation)."""
 import json
 from hashlib import sha1
+from pydantic import BaseModel
 from langchain.tools import ToolRuntime, tool
 from app.context import AdContext
 from app.db import q
@@ -8,15 +9,24 @@ from app.db import q
 def _owns(uid, cid):
     return q("select * from campaigns where id=%s and user_id=%s", (cid, uid), one=True)
 
+class Variant(BaseModel):
+    label: str      # "A", "B" or "C"
+    headline: str
+    body: str
+    cta: str
+
 @tool
-def create_campaign(name: str, product: str, platform: str, variants: list[dict], runtime: ToolRuntime[AdContext]) -> str:
-    """Save a draft campaign with 2-3 ad variants. variants: [{label, headline, body, cta}]."""
+def create_campaign(name: str, product: str, platform: str, variants: list[Variant], runtime: ToolRuntime[AdContext]) -> str:
+    """Save a draft campaign with 2-3 ad variants. Every variant needs label (A/B/C), headline, body and cta."""
     uid = runtime.context.user_id
     c = q("insert into campaigns(user_id,name,product,platform) values(%s,%s,%s,%s) returning id", (uid, name, product, platform), one=True)
+    saved = []
     for v in variants[:5]:
+        v = v if isinstance(v, dict) else v.model_dump()
         q("insert into variants(campaign_id,label,headline,body,cta) values(%s,%s,%s,%s,%s)",
           (c["id"], v.get("label"), v.get("headline"), v.get("body"), v.get("cta")))
-    return f"Campaign {c['id']} saved as draft."
+        saved.append(f"{v.get('label')}: {v.get('headline')}")
+    return f"Campaign {c['id']} saved as draft with {len(saved)} variants. " + " | ".join(saved)
 
 @tool
 def record_results(campaign_id: int, label: str, impressions: int, clicks: int, conversions: int, runtime: ToolRuntime[AdContext]) -> str:
